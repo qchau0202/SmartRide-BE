@@ -7,9 +7,19 @@ dotenv.config();
 const app = express();
 
 // Middleware
+const allowedOrigins = process.env.ALLOWED_HOSTS
+  ? process.env.ALLOWED_HOSTS.split(",")
+  : [];
+
 app.use(
   cors({
-    origin: process.env.FRONTEND_URL,
+    origin: function (origin, callback) {
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.indexOf(origin) === -1) {
+        return callback(new Error("Not allowed by CORS"), false);
+      }
+      return callback(null, true);
+    },
     credentials: true,
   })
 );
